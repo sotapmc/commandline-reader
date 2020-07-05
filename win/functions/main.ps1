@@ -2,6 +2,7 @@ $cwd = (Split-Path -Parent $MyInvocation.MyCommand.Definition)
 $cwdp = $cwd + "\"
 Import-Module ($cwdp + "function.psm1")
 
+$global:savedValue = "none"
 $ag = $args -split " "
 switch ($ag[0]) {
     "get" {
@@ -11,6 +12,7 @@ switch ($ag[0]) {
         } elseif ($r -eq -1) {
             outc yellow ("请求发生异常，请检查参数是否填写完整或路径是否正确。")
         } else {
+            $global:savedValue = $r
             out $r
         }
     }
@@ -26,6 +28,12 @@ switch ($ag[0]) {
             $c = "帮助文件缺失。"
         }
         out $c
+    }
+
+    "copy" {
+        # Bug: 错误的全局作用域，无法复制
+        Set-Clipboard -Value $global:savedValue
+        out $global:savedValue
     }
 
     default {
